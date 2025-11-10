@@ -1,0 +1,7 @@
+#include "board_key.h"
+#include "vacuum_ctrl.h"
+#include "base_event.h"
+#include "adc_capture.h"
+#include "base_state.h"
+#include "ir_capture.h"
+#include "lighting_ctrl.h"
