@@ -126,204 +126,11 @@ uint64_t ir2 = 0;
 uint64_t ir3 = 0;
 uint64_t ir4 = 0;
 
-void ATIM_IRQHandler(void)
-{
-		static uint16_t index = 0;
-		static uint16_t time_cnt = 0;
-		static uint8_t a = 0;
-		static uint64_t cnt_time_100us = 0;
-		cnt_us++;
-    if (ATIM_GetITStatus(ATIM_STATE_UIF))
-    {
-        ATIM_ClearITPendingBit(ATIM_STATE_UIF);
-//		if(charge_complate == 0)
-				{
-					if(light_twinkle_time == 0)
-					{
-						if(get_base_work_mode() == WORK_MODE_IDEL && (FULL_GO_STEP == WORK_MODE_FULL_GO_IDEL))       //&&charge_complate==0
-						{
-							if(dust_bag_state == DUST_BAG_STATE_UNSTALL)
-							{
-								set_light_twinkle_time(0XFFFFFFFF);
-							}
-							else
-							{
-								if(get_robot_at_dock_state() == ROBOT_STATE_AT_DOCK)
-								{
-									 led_breath(); 
-								}
-								else
-								{
-									 LED_ON(); 
-								}
-							}
-						}
-						else
-						{
-							 LED_OFF();	
-						}
-						}
-					}		
-		if((get_ir_enable_flag() != 1))
-		{
-			ir_detect_capture();
-			IR_MIDDLE_LEFT_OFF;
-			IR_MIDDLE_RIGHT_OFF;
-			time_cnt = 0;
-			ir_output_step = IR_OUTPUT_LEFT_MIDDLE;
-			return;
-		}		
-      time_cnt ++;
-      if(ir_info.mode == IR_CODE_SEND_MODE_BACK)
-      {
-        /*未使能发送引导码功能则不执行以下代码*/
-        if(time_cnt <= 280)
-        {
-            if(time_cnt == 1)
-            {
-                if(ir_output_step == IR_OUTPUT_LEFT)
-                {
-                    ir1 = ir_code_conver_dock(0x50);  
-                }
-                else if(ir_output_step == IR_OUTPUT_LEFT_MIDDLE)
-                {
-                    ir1 = ir_code_conver_dock(0x44); 
-                }
-                else if(ir_output_step == IR_OUTPUT_RIGHT_MIDDLE)
-                {
-                    ir1 = ir_code_conver_dock(0x42);			
-                }   
-                else if(ir_output_step == IR_OUTPUT_RIGHT)
-                {
-                    ir1 = ir_code_conver_dock(0x48);				
-                }
-            }
-#if 1
-            {
-                switch(ir_output_step)
-                {
-//                case IR_OUTPUT_LEFT:
-//                    a = ir1 & 0x01;
-//                    if(a > 0)
-//                        IR_LEFT_OFF;
-//                    else
-//                        IR_LEFT_ON;
-//                    if((time_cnt%7) == 0)
-//                    {
-//                        ir1 >>= 1;
-//                    }
-//                    break;
-
-//                case IR_OUTPUT_LEFT_MIDDLE:
-//                    a = ir1 & 0x01;
-//                    if(a > 0)
-//                        IR_MIDDLE_LEFT_OFF;
-//                    else
-//                        IR_MIDDLE_LEFT_ON;
-//                    if((time_cnt%7) == 0)
-//                    {
-//                        ir1 >>= 1;
-//                    }
-//                    break;
-//										
-                case IR_OUTPUT_RIGHT_MIDDLE:
-                    a = ir1 & 0x01;
-                    if(a > 0)
-                        IR_MIDDLE_RIGHT_OFF;
-                    else
-                        IR_MIDDLE_RIGHT_ON;
-                    if((time_cnt%7) == 0)
-                    {
-                        ir1 >>= 1;
-                    }
-                    break;
-////										
-//                case IR_OUTPUT_RIGHT:
-//                    a = ir1 & 0x01;
-//                    if(a > 0)
-//                        IR_RIGHT_OFF;
-//                    else
-//                        IR_RIGHT_ON;
-//                    if((time_cnt%7) == 0)
-//                    {
-//                        ir1 >>= 1;
-//                    }
-//                    break;
-
-//                    break;
-//                default:break;
-                }
-            }
-#elif
-						
-#endif
-        }
-        else if(time_cnt == 281)
-        {
-            IR_LEFT_OFF;
-            IR_RIGHT_OFF;
-            IR_MIDDLE_LEFT_OFF;
-            IR_MIDDLE_RIGHT_OFF;
-//            if(ir_output_step == IR_OUTPUT_RIGHT)
-//                ir_output_step = IR_OUTPUT_LEFT;
-//            else
-//                ir_output_step += 1;
-	          if(ir_output_step == IR_OUTPUT_RIGHT_MIDDLE)
-                ir_output_step = IR_OUTPUT_RIGHT_MIDDLE;
-            else
-                ir_output_step = IR_OUTPUT_RIGHT_MIDDLE;
-        }
-        else if(time_cnt > 421-80)
-        {
-            time_cnt = 0;
-        }
-      }
-      /*发送通讯码值模式*/
-      else if(ir_info.mode == IR_CODE_SEND_MODE_INFO)
-      {
-           	switch(index)
-            {
-				case 0:
-				{
-					 cnt_time_100us=cnt_us;
-					 index=1;
-				}break;
-				case 1:
-				{
-					 if((cnt_us - cnt_time_100us)>=10)
-					 {
-						 cnt_time_100us=cnt_us;
-						 if(ir_sent_buf(sent_buff,ir_sent_bite))
-						 {
-							   index=2;
-							   cnt_time_100us=cnt_us;
-						 }
-					 }
-				}break;
-				case 2:
-				{
-					 IR_MIDDLE_LEFT_OFF;	
-					 IR_MIDDLE_RIGHT_OFF ;
-					 if((cnt_us - cnt_time_100us)>=300)				
-					 {
-						  index=0;							 
-					 }
-				}break;
-            }
-      }
-   }
-}
-
-
-
 //void ATIM_IRQHandler(void)
 //{
 //		static uint16_t index = 0;
 //		static uint16_t time_cnt = 0;
 //		static uint8_t a = 0;
-//		static uint8_t b = 0;
-//		static uint8_t c = 0;
-//		static uint8_t d = 0;
 //		static uint64_t cnt_time_100us = 0;
 //		cnt_us++;
 //    if (ATIM_GetITStatus(ATIM_STATE_UIF))
@@ -370,7 +177,6 @@ void ATIM_IRQHandler(void)
 //      if(ir_info.mode == IR_CODE_SEND_MODE_BACK)
 //      {
 //        /*未使能发送引导码功能则不执行以下代码*/
-//#if 0
 //        if(time_cnt <= 280)
 //        {
 //            if(time_cnt == 1)
@@ -392,33 +198,34 @@ void ATIM_IRQHandler(void)
 //                    ir1 = ir_code_conver_dock(0x48);				
 //                }
 //            }
+//#if 1
 //            {
 //                switch(ir_output_step)
 //                {
-//                case IR_OUTPUT_LEFT:
-//                    a = ir1 & 0x01;
-//                    if(a > 0)
-//                        IR_LEFT_OFF;
-//                    else
-//                        IR_LEFT_ON;
-//                    if((time_cnt%7) == 0)
-//                    {
-//                        ir1 >>= 1;
-//                    }
-//                    break;
+////                case IR_OUTPUT_LEFT:
+////                    a = ir1 & 0x01;
+////                    if(a > 0)
+////                        IR_LEFT_OFF;
+////                    else
+////                        IR_LEFT_ON;
+////                    if((time_cnt%7) == 0)
+////                    {
+////                        ir1 >>= 1;
+////                    }
+////                    break;
 
-//                case IR_OUTPUT_LEFT_MIDDLE:
-//                    a = ir1 & 0x01;
-//                    if(a > 0)
-//                        IR_MIDDLE_LEFT_OFF;
-//                    else
-//                        IR_MIDDLE_LEFT_ON;
-//                    if((time_cnt%7) == 0)
-//                    {
-//                        ir1 >>= 1;
-//                    }
-//                    break;
-//										
+////                case IR_OUTPUT_LEFT_MIDDLE:
+////                    a = ir1 & 0x01;
+////                    if(a > 0)
+////                        IR_MIDDLE_LEFT_OFF;
+////                    else
+////                        IR_MIDDLE_LEFT_ON;
+////                    if((time_cnt%7) == 0)
+////                    {
+////                        ir1 >>= 1;
+////                    }
+////                    break;
+////										
 //                case IR_OUTPUT_RIGHT_MIDDLE:
 //                    a = ir1 & 0x01;
 //                    if(a > 0)
@@ -430,86 +237,46 @@ void ATIM_IRQHandler(void)
 //                        ir1 >>= 1;
 //                    }
 //                    break;
-//										
-//                case IR_OUTPUT_RIGHT:
-//                    a = ir1 & 0x01;
-//                    if(a > 0)
-//                        IR_RIGHT_OFF;
-//                    else
-//                        IR_RIGHT_ON;
-//                    if((time_cnt%7) == 0)
-//                    {
-//                        ir1 >>= 1;
-//                    }
-//                    break;
+//////										
+////                case IR_OUTPUT_RIGHT:
+////                    a = ir1 & 0x01;
+////                    if(a > 0)
+////                        IR_RIGHT_OFF;
+////                    else
+////                        IR_RIGHT_ON;
+////                    if((time_cnt%7) == 0)
+////                    {
+////                        ir1 >>= 1;
+////                    }
+////                    break;
 
-//                    break;
-//                default:break;
+////                    break;
+////                default:break;
 //                }
 //            }
-//					}
+//#elif
+//						
+//#endif
+//        }
 //        else if(time_cnt == 281)
 //        {
 //            IR_LEFT_OFF;
 //            IR_RIGHT_OFF;
 //            IR_MIDDLE_LEFT_OFF;
 //            IR_MIDDLE_RIGHT_OFF;
-//            if(ir_output_step == IR_OUTPUT_RIGHT)
-//                ir_output_step = IR_OUTPUT_LEFT;
+////            if(ir_output_step == IR_OUTPUT_RIGHT)
+////                ir_output_step = IR_OUTPUT_LEFT;
+////            else
+////                ir_output_step += 1;
+//	          if(ir_output_step == IR_OUTPUT_RIGHT_MIDDLE)
+//                ir_output_step = IR_OUTPUT_RIGHT_MIDDLE;
 //            else
-//                ir_output_step += 1;
+//                ir_output_step = IR_OUTPUT_RIGHT_MIDDLE;
 //        }
 //        else if(time_cnt > 421-80)
 //        {
 //            time_cnt = 0;
 //        }
-//#elif 2
-//      if(time_cnt <= 280)
-//      {
-//					if(time_cnt == 1)
-//					{
-//							ir1 = ir_code_conver_dock(0x48);
-//							ir2 = ir_code_conver_dock(0x44); 
-//							ir3 = ir_code_conver_dock(0x42);
-//							ir4 = ir_code_conver_dock(0x50);
-//					}
-//					a = ir1 & 0x01;
-//					b = ir2 & 0x01;
-//					c = ir3 & 0x01;
-//					d = ir4 & 0x01;
-//					
-//					if(a > 0) IR_LEFT_OFF;
-//					else IR_LEFT_ON;
-//					
-//					if(b > 0) IR_MIDDLE_LEFT_OFF;
-//					else IR_MIDDLE_LEFT_ON;
-//					
-//					if(c > 0) IR_MIDDLE_RIGHT_OFF;
-//					else IR_MIDDLE_RIGHT_ON;
-//					
-//					if(d > 0) IR_RIGHT_OFF;
-//					else IR_RIGHT_ON;
-//								
-//					if((time_cnt%7) == 0)
-//					{
-//						ir1 >>= 1;
-//						ir2 >>= 1;
-//						ir3 >>= 1;
-//						ir4 >>= 1;
-//					}
-//        }
-//        else if(time_cnt == 281)
-//        {
-//            IR_LEFT_OFF;
-//            IR_RIGHT_OFF;
-//            IR_MIDDLE_LEFT_OFF;
-//            IR_MIDDLE_RIGHT_OFF;
-//        }
-//        else if(time_cnt > 460)
-//        {
-//            time_cnt = 0;
-//        }
-//#endif
 //      }
 //      /*发送通讯码值模式*/
 //      else if(ir_info.mode == IR_CODE_SEND_MODE_INFO)
@@ -546,6 +313,239 @@ void ATIM_IRQHandler(void)
 //      }
 //   }
 //}
+
+
+
+void ATIM_IRQHandler(void)
+{
+		static uint16_t index = 0;
+		static uint16_t time_cnt = 0;
+		static uint8_t a = 0;
+		static uint8_t b = 0;
+		static uint8_t c = 0;
+		static uint8_t d = 0;
+		static uint64_t cnt_time_100us = 0;
+		cnt_us++;
+    if (ATIM_GetITStatus(ATIM_STATE_UIF))
+    {
+        ATIM_ClearITPendingBit(ATIM_STATE_UIF);
+//		if(charge_complate == 0)
+				{
+					if(light_twinkle_time == 0)
+					{
+						if(get_base_work_mode() == WORK_MODE_IDEL && (FULL_GO_STEP == WORK_MODE_FULL_GO_IDEL))       //&&charge_complate==0
+						{
+							if(dust_bag_state == DUST_BAG_STATE_UNSTALL)
+							{
+								set_light_twinkle_time(0XFFFFFFFF);
+							}
+							else
+							{
+								if(get_robot_at_dock_state() == ROBOT_STATE_AT_DOCK)
+								{
+									 led_breath(); 
+								}
+								else
+								{
+									 LED_ON(); 
+								}
+							}
+						}
+						else
+						{
+							 LED_OFF();	
+						}
+						}
+					}		
+		if((get_ir_enable_flag() != 1))
+		{
+			ir_detect_capture();
+			IR_MIDDLE_LEFT_OFF;
+			IR_MIDDLE_RIGHT_OFF;
+			time_cnt = 0;
+			ir_output_step = IR_OUTPUT_LEFT_MIDDLE;
+			return;
+		}		
+      time_cnt ++;
+      if(ir_info.mode == IR_CODE_SEND_MODE_BACK)
+      {
+        /*未使能发送引导码功能则不执行以下代码*/
+#if 0
+        if(time_cnt <= 280)
+        {
+            if(time_cnt == 1)
+            {
+                if(ir_output_step == IR_OUTPUT_LEFT)
+                {
+                    ir1 = ir_code_conver_dock(0x50);  
+                }
+                else if(ir_output_step == IR_OUTPUT_LEFT_MIDDLE)
+                {
+                    ir1 = ir_code_conver_dock(0x44); 
+                }
+                else if(ir_output_step == IR_OUTPUT_RIGHT_MIDDLE)
+                {
+                    ir1 = ir_code_conver_dock(0x42);			
+                }   
+                else if(ir_output_step == IR_OUTPUT_RIGHT)
+                {
+                    ir1 = ir_code_conver_dock(0x48);				
+                }
+            }
+            {
+                switch(ir_output_step)
+                {
+                case IR_OUTPUT_LEFT:
+                    a = ir1 & 0x01;
+                    if(a > 0)
+                        IR_LEFT_OFF;
+                    else
+                        IR_LEFT_ON;
+                    if((time_cnt%7) == 0)
+                    {
+                        ir1 >>= 1;
+                    }
+                    break;
+
+                case IR_OUTPUT_LEFT_MIDDLE:
+                    a = ir1 & 0x01;
+                    if(a > 0)
+                        IR_MIDDLE_LEFT_OFF;
+                    else
+                        IR_MIDDLE_LEFT_ON;
+                    if((time_cnt%7) == 0)
+                    {
+                        ir1 >>= 1;
+                    }
+                    break;
+										
+                case IR_OUTPUT_RIGHT_MIDDLE:
+                    a = ir1 & 0x01;
+                    if(a > 0)
+                        IR_MIDDLE_RIGHT_OFF;
+                    else
+                        IR_MIDDLE_RIGHT_ON;
+                    if((time_cnt%7) == 0)
+                    {
+                        ir1 >>= 1;
+                    }
+                    break;
+										
+                case IR_OUTPUT_RIGHT:
+                    a = ir1 & 0x01;
+                    if(a > 0)
+                        IR_RIGHT_OFF;
+                    else
+                        IR_RIGHT_ON;
+                    if((time_cnt%7) == 0)
+                    {
+                        ir1 >>= 1;
+                    }
+                    break;
+
+                    break;
+                default:break;
+                }
+            }
+					}
+        else if(time_cnt == 281)
+        {
+            IR_LEFT_OFF;
+            IR_RIGHT_OFF;
+            IR_MIDDLE_LEFT_OFF;
+            IR_MIDDLE_RIGHT_OFF;
+            if(ir_output_step == IR_OUTPUT_RIGHT)
+                ir_output_step = IR_OUTPUT_LEFT;
+            else
+                ir_output_step += 1;
+        }
+        else if(time_cnt > 421-80)
+        {
+            time_cnt = 0;
+        }
+#elif 2
+      if(time_cnt <= 280)
+      {
+					if(time_cnt == 1)
+					{
+							ir1 = ir_code_conver_dock(0x48);
+							ir2 = ir_code_conver_dock(0x44); 
+							ir3 = ir_code_conver_dock(0x42);
+							ir4 = ir_code_conver_dock(0x50);
+					}
+					a = ir1 & 0x01;
+					b = ir2 & 0x01;
+					c = ir3 & 0x01;
+					d = ir4 & 0x01;
+					
+					if(a > 0) IR_LEFT_OFF;
+					else IR_LEFT_ON;
+					
+					if(b > 0) IR_MIDDLE_LEFT_OFF;
+					else IR_MIDDLE_LEFT_ON;
+					
+					if(c > 0) IR_MIDDLE_RIGHT_OFF;
+					else IR_MIDDLE_RIGHT_ON;
+					
+					if(d > 0) IR_RIGHT_OFF;
+					else IR_RIGHT_ON;
+								
+					if((time_cnt%7) == 0)
+					{
+						ir1 >>= 1;
+						ir2 >>= 1;
+						ir3 >>= 1;
+						ir4 >>= 1;
+					}
+        }
+        else if(time_cnt == 281)
+        {
+            IR_LEFT_OFF;
+            IR_RIGHT_OFF;
+            IR_MIDDLE_LEFT_OFF;
+            IR_MIDDLE_RIGHT_OFF;
+        }
+        else if(time_cnt > 460)
+        {
+            time_cnt = 0;
+        }
+#endif
+      }
+      /*发送通讯码值模式*/
+      else if(ir_info.mode == IR_CODE_SEND_MODE_INFO)
+      {
+           	switch(index)
+            {
+				case 0:
+				{
+					 cnt_time_100us=cnt_us;
+					 index=1;
+				}break;
+				case 1:
+				{
+					 if((cnt_us - cnt_time_100us)>=10)
+					 {
+						 cnt_time_100us=cnt_us;
+						 if(ir_sent_buf(sent_buff,ir_sent_bite))
+						 {
+							   index=2;
+							   cnt_time_100us=cnt_us;
+						 }
+					 }
+				}break;
+				case 2:
+				{
+					 IR_MIDDLE_LEFT_OFF;	
+					 IR_MIDDLE_RIGHT_OFF ;
+					 if((cnt_us - cnt_time_100us)>=300)				
+					 {
+						  index=0;							 
+					 }
+				}break;
+            }
+      }
+   }
+}
 
 
 ///设置红外发射码模式,ir_code仅在 mode 为 IR_CODE_SEND_MODE_INFO 时有效

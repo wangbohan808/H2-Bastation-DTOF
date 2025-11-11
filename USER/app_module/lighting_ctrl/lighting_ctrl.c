@@ -12,14 +12,12 @@ void lighting_ctrl_init(void)
 
 void LED_ON(void)
 {
-    set_gpio_level(CW_GPIOB,GPIO_PIN_1,0);
-//    CW_GPIOA->PBC= GPIO_PIN_4;	
+    set_gpio_level(CW_GPIOB,GPIO_PIN_1,0);	
 }
 
 void LED_OFF(void)
 {
     set_gpio_level(CW_GPIOB,GPIO_PIN_1,1); 
-//	CW_GPIOA->PBSC = GPIO_PIN_4;
 }
 
 

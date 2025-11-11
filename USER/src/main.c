@@ -74,13 +74,9 @@ int32_t main(void)
 				if(KeyNum != timer_ms())
 				{
 					KeyNum = timer_ms();
-					
-//					if(get_key_init()) 
-					{
-						key_press_detect();
-					}	
-					
-				}				
+					key_press_detect();
+				}	
+				
 		}
 }
 
@@ -126,18 +122,18 @@ static void Hardware_init_jcb(void)
 	__SYSCTRL_GPIOA_CLK_ENABLE();
 	__SYSCTRL_GPIOB_CLK_ENABLE();
 	tim_charge_pwm_cfg(100-1,48-1);                              //100us定时中断
-//	
+
 	lighting_ctrl_init();   
 	
 #endif
 	gpio_input_cfg(CW_GPIOA , GPIO_PIN_0); 
+	
+	/* 复位引脚重置为输出功能 */
 	CW_SYSCTRL->CR2 =  CW_SYSCTRL->CR2 | (0x5A5A0000 | bv0);
 	gpio_input_cfg(CW_GPIOB , GPIO_PIN_7);
 	
 	adc_capture_cfg_jcb();                                        //adc采集初始化
-
-////	ir_init();
-//	
+	
 	gpio_input_cfg(CW_GPIOA,GPIO_PIN_3);                             //ir接收初始化
     ir_decoder_io_level_init();
 	
@@ -151,11 +147,7 @@ static void Hardware_init_jcb(void)
 	
 	set_gpio_level(CW_GPIOB,GPIO_PIN_4,0);
 	
-  iwdg_reset_init();                                            //看门狗初始化
-	
-//		CW_SYSCTRL->CR2 |=(1<<0);
-//	gpio_input_cfg(CW_GPIOB , GPIO_PIN_7);   	
-	
+  iwdg_reset_init();                                            //看门狗初始化  	
 }
 
 
