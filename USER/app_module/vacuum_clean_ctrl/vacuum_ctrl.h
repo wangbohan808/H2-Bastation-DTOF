@@ -21,6 +21,8 @@ extern uint8_t need_duty ;
 
 extern uint32_t time_for_dust_finish ;
 
+uint8_t get_need_duty(void) ;
+
 
 #endif
 

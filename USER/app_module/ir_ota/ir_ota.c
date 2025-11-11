@@ -45,7 +45,7 @@ uint8_t check_sum(uint8_t * arr ,uint8_t len)
 uint32_t start_add1;
 int32_t app_flash_write(uint32_t *data ,uint32_t Flash_address,uint16_t count)
 {
-        uint32_t i;
+//        uint32_t i;
 		start_add1 = Flash_address;
 		FLASH_UnlockAllPages();
 //		for(i=0;i< count ;i++)

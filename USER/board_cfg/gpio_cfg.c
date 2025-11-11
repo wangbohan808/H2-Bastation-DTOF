@@ -26,7 +26,6 @@ void gpio_output_cfg(GPIO_TypeDef* GPIOx, uint16_t pin)
 
 void gpio_input_cfg(GPIO_TypeDef* GPIOx, uint16_t pin)
 {
-
 	GPIO_InitTypeDef GPIO_InitStructure;
 	if(pin < GPIO_PIN_All)
 	{		

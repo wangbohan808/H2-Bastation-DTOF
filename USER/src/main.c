@@ -53,6 +53,8 @@ static void Hardware_init_jcb(void) ;
  *         
  * @return int32_t
  */
+ uint32_t KeyNum;
+ 
 int32_t main(void)
 {
 	  SYSCTRL_HSI_Enable(SYSCTRL_HSIOSC_DIV1);
@@ -67,7 +69,18 @@ int32_t main(void)
 				{
 					 dust_absorption_ctrl(1);
 				}
-			  task_base_self_detect();  
+			  task_base_self_detect(); 
+
+				if(KeyNum != timer_ms())
+				{
+					KeyNum = timer_ms();
+					
+//					if(get_key_init()) 
+					{
+						key_press_detect();
+					}	
+					
+				}				
 		}
 }
 
@@ -117,7 +130,9 @@ static void Hardware_init_jcb(void)
 	lighting_ctrl_init();   
 	
 #endif
-	gpio_input_cfg(CW_GPIOA , GPIO_PIN_0);                          
+	gpio_input_cfg(CW_GPIOA , GPIO_PIN_0); 
+	CW_SYSCTRL->CR2 =  CW_SYSCTRL->CR2 | (0x5A5A0000 | bv0);
+	gpio_input_cfg(CW_GPIOB , GPIO_PIN_7);
 	
 	adc_capture_cfg_jcb();                                        //adc采集初始化
 
@@ -137,6 +152,9 @@ static void Hardware_init_jcb(void)
 	set_gpio_level(CW_GPIOB,GPIO_PIN_4,0);
 	
   iwdg_reset_init();                                            //看门狗初始化
+	
+//		CW_SYSCTRL->CR2 |=(1<<0);
+//	gpio_input_cfg(CW_GPIOB , GPIO_PIN_7);   	
 	
 }
 

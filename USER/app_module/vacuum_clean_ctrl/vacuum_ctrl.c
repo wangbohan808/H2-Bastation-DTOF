@@ -109,8 +109,8 @@ void dust_absorption_ctrl(uint8_t ctrl)
 				vacuum_zero_check_flg = 0;
 				time_cnt = timer_ms();
     }	  
-    if(timer_elapsed(time_cnt) > (dust_absorption_time) * 1000 ||(dust_bag_state == DUST_BAG_STATE_UNSTALL&&get_base_work_mode() != WORK_MODE_FULL_GO))
-//    if(timer_elapsed(time_cnt) > (dust_absorption_time) * 1000)
+//    if(timer_elapsed(time_cnt) > (dust_absorption_time) * 1000 ||(dust_bag_state == DUST_BAG_STATE_UNSTALL&&get_base_work_mode() != WORK_MODE_FULL_GO))
+    if(timer_elapsed(time_cnt) > (dust_absorption_time) * 1000)
     {
         /*判断集尘超时,关闭集尘*/
         need_duty = 0 ;
@@ -212,6 +212,14 @@ void set_need_duty(uint8_t val)
 {
 	need_duty = val;
 }
+
+
+
+uint8_t get_need_duty(void)
+{
+	  return need_duty ;
+}
+
 
 static void delay_us(uint16_t us)
 {
